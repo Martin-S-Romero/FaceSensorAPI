@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: media-censorship-api
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./storage:/app/storage
+    environment:
+      - PYTHONUNBUFFERED=1
+      
+      # --- NVIDIA ---
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+
+    # --- GPU soporte moderno ---
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    restart: unless-stopped
+
+    # --- Healthcheck FastAPI ---
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      app_net:
+        ipv4_address: 172.25.0.10
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
