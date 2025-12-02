@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.src.api.schemas import CensorshipMode
-from api.face_api.face_censor import FaceCensor
+from app.face_censor import FaceCensor
 
 
 class FaceCensorService:
